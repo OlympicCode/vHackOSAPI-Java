@@ -12,3 +12,4 @@
 - [ ] App upgrading & installing
 - [ ] Exploiting, remote notepad editing and bruteforcing
 - [ ] Logging in and grabbing money
+- [ ] Mission completing
