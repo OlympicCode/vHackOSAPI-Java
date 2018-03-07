@@ -9,7 +9,8 @@
 ##### Current API progress:
 - [x] Base request system
 - [x] Basic status retrieving
-- [ ] App upgrading & installing
+- [X] App upgrading & installing 
+- [ ] Update boosting and finishing
 - [ ] Exploiting, remote notepad editing and bruteforcing
 - [ ] Logging in and grabbing money
 - [ ] Mission completing
