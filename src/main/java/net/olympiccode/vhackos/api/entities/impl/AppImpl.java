@@ -24,7 +24,7 @@ public class AppImpl implements App {
         this.price = price;
         this.level = level;
         this.requiredLevel = requiredLevel;
-        this.oneTime = maxLevel > 1;
+        this.oneTime = maxLevel < 2;
         this.api = api;
         this.installed = level > 0;
         this.maxLevel = maxLevel;

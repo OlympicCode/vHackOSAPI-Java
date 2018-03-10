@@ -40,21 +40,7 @@ public class AppManagerImpl implements AppManager {
         return l;
     }
     public App getApp(AppType type) {
-        Route.CompiledRoute route =  Route.AppStore.GET_APPS.compile(api);
-        Response r = api.getRequester().getResponse(route);
-        JSONObject object = r.getJSON();
-        try {
-            JSONArray array = object.getJSONArray("apps");
-            JSONObject appobj = array.getJSONObject(type.getId());
-            int price = appobj.optInt("price", -1);
-            int level = appobj.optInt("level", 0);
-            int requiredLevel = appobj.optInt("require", 1);
-            int maxLevel = appobj.optInt("maxlvl", 1);
-            return new AppImpl(api, type, price, level, requiredLevel, maxLevel);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return getApps().get(type.getId());
     }
 
 }

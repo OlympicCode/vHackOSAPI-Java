@@ -1,7 +1,6 @@
 package net.olympiccode.vhackos.api.entities.impl;
 
 import net.olympiccode.vhackos.api.appstore.AppManager;
-import net.olympiccode.vhackos.api.appstore.TaskManager;
 import net.olympiccode.vhackos.api.entities.Stats;
 import net.olympiccode.vhackos.api.events.Event;
 import net.olympiccode.vhackos.api.events.EventListener;
@@ -29,27 +28,28 @@ public class vHackOSAPIImpl implements vHackOSAPI {
     private static final Logger LOG = LoggerFactory.getLogger("vHackOSAPI");
 
     private final OkHttpClient.Builder httpClientBuilder;
-    private final int maxReconnectDelay;
     private List<EventListener> listeners = new ArrayList<>();
     private int corePoolSize;
     private Status status = Status.INITIALIZING;
     private Requester requester;
-    private boolean autoReconnect;
     private String username = null;
     private String password = null;
     private String accessToken = "";
     private String uid = "";
     private boolean invalidToken = false;
+    private boolean debugResponses = false;
 
-    public StatsImpl stats = new StatsImpl(this);
-    public AppManagerImpl appManager = new AppManagerImpl(this);
-    public TaskManagerImpl taskManager = new TaskManagerImpl(this);
-    ScheduledExecutorService executorService =  Executors.newScheduledThreadPool(corePoolSize, new APIThreadFactory());
+    private StatsImpl stats = new StatsImpl(this);
+    private AppManagerImpl appManager = new AppManagerImpl(this);
+    private TaskManagerImpl taskManager = new TaskManagerImpl(this);
+    private NetworkManagerImpl networkManager = new NetworkManagerImpl(this);
+    private MinerImpl miner = new MinerImpl(this);
+    private ScheduledExecutorService executorService =  Executors.newScheduledThreadPool(corePoolSize, new APIThreadFactory());
 
     public vHackOSAPIImpl(OkHttpClient.Builder httpClientBuilder, boolean autoReconnect, int maxReconnectDelay, int corePoolSize) {
         this.httpClientBuilder = httpClientBuilder;
-        this.autoReconnect = autoReconnect;
-        this.maxReconnectDelay = maxReconnectDelay;
+        boolean autoReconnect1 = autoReconnect;
+        int maxReconnectDelay1 = maxReconnectDelay;
         this.requester = new Requester(this);
         this.corePoolSize = corePoolSize;
     }
@@ -91,13 +91,15 @@ public class vHackOSAPIImpl implements vHackOSAPI {
     private void setup() {
         setStatus(Status.LOADING_SUBSYSTEMS);
         LOG.info("Loading subsystems...");
-        executorService.scheduleAtFixedRate(() -> updateData(), 0, 30000, TimeUnit.MILLISECONDS);
-        executorService.scheduleAtFixedRate(() -> taskManager.checkTasks(), 0, 1000, TimeUnit.MILLISECONDS);
-        executorService.scheduleAtFixedRate(() -> taskManager.reloadTasks(), 0, 30000, TimeUnit.MILLISECONDS);
+        updateData();
+        taskManager.reloadTasks();
+        executorService.scheduleAtFixedRate(() -> updateData(), 30000, 30000, TimeUnit.MILLISECONDS);
+        executorService.scheduleAtFixedRate(() -> taskManager.checkTasks(), 1000, 1000, TimeUnit.MILLISECONDS);
+        executorService.scheduleAtFixedRate(() -> taskManager.reloadTasks(), 30000, 30000, TimeUnit.MILLISECONDS);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> executorService.shutdownNow()));
     }
 
-    public void updateData() {
+    private void updateData() {
         LOG.debug("Updating data");
         Route.CompiledRoute route = Route.Misc.UPDATE.compile(this);
         Response resp = getRequester().getResponse(route);
@@ -162,6 +164,14 @@ public class vHackOSAPIImpl implements vHackOSAPI {
         for (Object o : listener) if (o instanceof EventListener) listeners.remove(o);
     }
 
+    public void setDebugResponses(boolean debugResponses) {
+        this.debugResponses = debugResponses;
+    }
+
+    public boolean isDebugResponses() {
+        return debugResponses;
+    }
+
     public List<EventListener> getRegisteredListeners() {
         return listeners;
     }
@@ -186,6 +196,11 @@ public class vHackOSAPIImpl implements vHackOSAPI {
         return taskManager;
     }
 
+    public NetworkManagerImpl getNetworkManager() {
+        return networkManager;
+    }
+
+    public MinerImpl getMiner() { return miner; }
     class APIThreadFactory implements ThreadFactory {
         private int counter = 0;
         private String prefix = "vHackOSAPI";

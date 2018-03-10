@@ -19,7 +19,7 @@ public class Response implements Closeable
 
 
 
-    protected Response(final okhttp3.Response response)
+    Response(final okhttp3.Response response)
     {
         this.rawResponse = response;
         if (response == null || Objects.requireNonNull(response.body()).contentLength() == 0)

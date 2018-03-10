@@ -14,8 +14,6 @@ public class vHackOSAPIBuilder {
     private final List<Object> listeners;
 
     private OkHttpClient.Builder httpClientBuilder = null;
-    private int maxReconnectDelay = 900;
-    private boolean autoReconnect = true;
     private String username;
     private String password;
 
@@ -59,9 +57,11 @@ public class vHackOSAPIBuilder {
     }
 
 
-    public vHackOSAPI buildAsync() throws LoginException, IllegalArgumentException
+    private vHackOSAPI buildAsync() throws LoginException, IllegalArgumentException
     {
         OkHttpClient.Builder httpClientBuilder = this.httpClientBuilder == null ? new OkHttpClient.Builder() : this.httpClientBuilder;
+        boolean autoReconnect = true;
+        int maxReconnectDelay = 900;
         vHackOSAPIImpl api = new vHackOSAPIImpl(httpClientBuilder, autoReconnect, maxReconnectDelay, 5);
 
         listeners.forEach(api::addEventListener);
@@ -71,13 +71,13 @@ public class vHackOSAPIBuilder {
     }
 
 
-    private vHackOSAPI buildBlocking(vHackOSAPI.Status status) throws LoginException, IllegalArgumentException, InterruptedException
+    public vHackOSAPI buildBlocking() throws LoginException, IllegalArgumentException, InterruptedException
     {
-        Checks.notNull(status, "Status");
-        Checks.check(status.isInit(), "Cannot await the status %s as it is not part of the login cycle!", status);
+        Checks.notNull(vHackOSAPI.Status.CONNECTED, "Status");
+        Checks.check(vHackOSAPI.Status.CONNECTED.isInit(), "Cannot await the status %s as it is not part of the login cycle!", vHackOSAPI.Status.CONNECTED);
         vHackOSAPI api = buildAsync();
         while (!api.getStatus().isInit()
-                || api.getStatus().ordinal() < status.ordinal())
+                || api.getStatus().ordinal() < vHackOSAPI.Status.CONNECTED.ordinal())
         {
             if (api.getStatus() == vHackOSAPI.Status.SHUTDOWN)
                 throw new IllegalStateException("vHackOSAPI was unable to finish starting up!");
@@ -85,11 +85,5 @@ public class vHackOSAPIBuilder {
         }
 
         return api;
-    }
-
-
-    public vHackOSAPI buildBlocking() throws LoginException, IllegalArgumentException, InterruptedException
-    {
-        return buildBlocking(vHackOSAPI.Status.CONNECTED);
     }
 }

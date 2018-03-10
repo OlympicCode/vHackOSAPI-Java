@@ -1,11 +1,8 @@
 package net.olympiccode.vhackos.api.entities;
 
 import lombok.Getter;
-import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -21,8 +18,9 @@ public enum AppType {
             Missions ("Missions", 8),
             Leaderboards ("Leaderboards", 9),
             IPSP ("IP-Spoofing", 10),
-            MalwareKit ("Malware Kit", 11),
-            Jobs ("Jobs", 12);
+            NCMiner ("NCMiner", 11),
+            MalwareKit ("Malware Kit", 12),
+            Jobs ("Jobs", 13);
 
     @Getter
     private String name;

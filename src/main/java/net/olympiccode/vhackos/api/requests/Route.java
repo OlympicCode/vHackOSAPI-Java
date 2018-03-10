@@ -75,7 +75,7 @@ public class Route {
         String base64 = Encryption.base64Encrypt(json);
         String pass = Encryption.md5Hash(json + json + Encryption.md5Hash(json));
         String compiledRoute = vHackOSInfo.API_PREFIX + route + ".php?user=" + base64 + "&pass=" + pass;
-        return new CompiledRoute(this, compiledRoute);
+        return new CompiledRoute(api, this, compiledRoute);
     }
 
     @Override
@@ -100,6 +100,8 @@ public class Route {
     public static class Misc {
         public static final Route LOGIN = new Route("login");
         public static final Route UPDATE = new Route("update");
+        public static final Route MINER = new Route("mining");
+        public static final Route MINER_ACT = new Route("mining", "action");
     }
 
     public static class AppStore {
@@ -109,13 +111,28 @@ public class Route {
 
     public static class Tasks {
         public static final Route GET_TASKS = new Route("tasks");
+        public static final Route REMOVE_BRUTE = new Route("tasks", "action", "updateid");
+        public static final Route FINISH = new Route("tasks", "action", "updateid");
+    }
+
+    public static class Network {
+        public static final Route TARGET_LIST = new Route("network");
+        public static final Route EXPLOIT = new Route("exploit", "target");
+        public static final Route REMOTE = new Route("remote", "target");
+        public static final Route REMOTE_BANKING = new Route("remotebanking", "target");
+        public static final Route BANKING_RETRIEVE = new Route("remotebanking", "action", "target");
+        public static final Route START_BRUTEFORCE = new Route("startbruteforce", "target");
+        public static final Route GET_LOG = new Route("remotelog", "target");
+        public static final Route EDIT_LOG = new Route("remotelog", "target", "action", "log");
     }
 
     public class CompiledRoute {
         private final Route baseRoute;
         private final String compiledRoute;
+        private final vHackOSAPIImpl api;
 
-        private CompiledRoute(Route baseRoute, String compiledRoute) {
+        private CompiledRoute(vHackOSAPIImpl api, Route baseRoute, String compiledRoute) {
+            this.api = api;
             this.baseRoute = baseRoute;
             this.compiledRoute = compiledRoute;
         }
@@ -124,7 +141,7 @@ public class Route {
             return compiledRoute;
         }
 
-        public Route getBaseRoute() {
+        Route getBaseRoute() {
             return baseRoute;
         }
 
@@ -143,7 +160,7 @@ public class Route {
             return baseRoute.equals(oCompiled.getBaseRoute()) && compiledRoute.equals(oCompiled.compiledRoute);
         }
 
-        public Response getResponse(vHackOSAPIImpl api) {
+        public Response getResponse() {
             return api.getRequester().getResponse(this);
         }
 

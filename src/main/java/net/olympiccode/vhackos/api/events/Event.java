@@ -4,9 +4,9 @@ package net.olympiccode.vhackos.api.events;
 import net.olympiccode.vhackos.api.vHackOSAPI;
 
 public class Event {
-    protected final vHackOSAPI api;
+    final vHackOSAPI api;
 
-    public Event(vHackOSAPI api)
+    Event(vHackOSAPI api)
     {
         this.api = api;
     }

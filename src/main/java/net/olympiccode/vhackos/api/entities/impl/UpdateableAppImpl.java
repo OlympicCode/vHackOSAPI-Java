@@ -20,6 +20,7 @@ public class UpdateableAppImpl extends AppImpl implements UpdateableApp {
         Response r = api.getRequester().getResponse(route);
         JSONObject object = r.getJSON();
         if (Integer.valueOf(object.optString("updated", "1")) == 0) {
+            api.getTaskManager().reloadTasks();
             return true;
         }
         return false;
@@ -29,7 +30,8 @@ public class UpdateableAppImpl extends AppImpl implements UpdateableApp {
         Route.CompiledRoute route = Route.AppStore.APP_ACTION.compile(api, "5500", String.valueOf(getType().getId()));
         Response r = api.getRequester().getResponse(route);
         JSONObject object = r.getJSON();
-        if (Integer.valueOf(object.optString("filled", "1")) == 0) {
+        if (Integer.valueOf(object.optString("filled", "1")) == 1) {
+            api.getTaskManager().reloadTasks();
             return true;
         }
         return false;

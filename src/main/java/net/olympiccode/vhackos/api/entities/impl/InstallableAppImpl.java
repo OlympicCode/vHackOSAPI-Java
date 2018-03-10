@@ -27,10 +27,7 @@ public class InstallableAppImpl extends AppImpl implements InstallableApp {
         Route.CompiledRoute route = Route.AppStore.APP_ACTION.compile(api, "200", String.valueOf(type.getId()));
         Response r = api.getRequester().getResponse(route);
         JSONObject object = r.getJSON();
-        if (Integer.valueOf(object.optString("installed", "1")) == 0) {
-            return true;
-        }
-        return false;
+        return Integer.valueOf(object.optString("installed", "1")) == 0;
     }
 
 }

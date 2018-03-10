@@ -4,6 +4,8 @@ import net.olympiccode.vhackos.api.appstore.AppManager;
 import net.olympiccode.vhackos.api.appstore.TaskManager;
 import net.olympiccode.vhackos.api.entities.Stats;
 import net.olympiccode.vhackos.api.events.EventListener;
+import net.olympiccode.vhackos.api.misc.Miner;
+import net.olympiccode.vhackos.api.network.NetworkManager;
 
 import java.util.List;
 
@@ -52,6 +54,10 @@ public interface vHackOSAPI {
     AppManager getAppManager();
 
     TaskManager getTaskManager();
+
+    NetworkManager getNetworkManager();
+
+    Miner getMiner();
 
 }
 

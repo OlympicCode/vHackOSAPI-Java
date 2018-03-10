@@ -4,7 +4,6 @@ import net.olympiccode.vhackos.api.entities.impl.vHackOSAPIImpl;
 import net.olympiccode.vhackos.api.vHackOSAPI;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +15,8 @@ import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 
 public class Requester {
-    public static final Logger LOG = LoggerFactory.getLogger("Requester");
-    protected final vHackOSAPIImpl api;
+    private static final Logger LOG = LoggerFactory.getLogger("Requester");
+    private final vHackOSAPIImpl api;
     private long lastRequest = 0;
     private final OkHttpClient httpClient;
 
@@ -45,8 +44,8 @@ public class Requester {
         return this.httpClient;
     }
 
-    int triesLeft = 3;
-    int success = 0;
+    private int triesLeft = 3;
+    private int success = 0;
     public Response getResponse(Route.CompiledRoute route) {
         if (lastRequest >= System.currentTimeMillis() - 1000) {
             try {
@@ -76,10 +75,14 @@ public class Requester {
         }
         try {
             JSONObject object = response[0].getJSON();
+
             switch (object.getString("result")) {
                 case "2":
-                    api.setStatus(vHackOSAPI.Status.FAILED_TO_LOGIN);
-                    throw new LoginException("Invalid username or password");
+                    if (!route.getCompiledRoute().contains("remotelog")) {
+                        api.setStatus(vHackOSAPI.Status.FAILED_TO_LOGIN);
+                        throw new LoginException("Invalid username or password");
+                    }
+                    break;
                 case "36":
                     if (triesLeft <= 0) {
                         LOG.error("Failed to relogin after 3 tries, you are probably running the game while the bot is also running.");
@@ -96,9 +99,7 @@ public class Requester {
                 case "1":
                     throw new RuntimeException("Your vhack account has been banned");
             }
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        } catch (LoginException e) {
+        } catch (RuntimeException | LoginException e) {
             e.printStackTrace();
         } catch (final Exception e) {
             throw new IllegalStateException("An error occurred while processing rest request", e);
@@ -110,6 +111,7 @@ public class Requester {
         if (success >= 2) {
             triesLeft = 3;
         }
+        if (api.isDebugResponses()) LOG.info(response[0].getJSON().toString());
         return response[0];
     }
 }
