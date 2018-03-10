@@ -4,7 +4,7 @@
 ## IN-DEV
 ### The vHackOSAPI is currently being developed, progress below.
 ### Join [Our Discord](https://discord.gg/52MtBDp) to keep updated.
-[![Discord](https://img.shields.io/badge/Chat-%20on%20Discord-738bd7.svg?style=flat-square)](https://discord.gg/52MtBDp) [![Downloads](https://img.shields.io/github/downloads/OlympicCode/vHackAPI-Java/total.svg?style=flat-square)]()
+[![Discord](https://img.shields.io/badge/Chat-%20on%20Discord-738bd7.svg?style=flat-square)](https://discord.gg/52MtBDp) [![Downloads](https://img.shields.io/github/downloads/OlympicCode/vHackAPI-Java/total.svg?style=flat-square)]()[![](https://jitpack.io/v/net.olympiccode/vHackOSAPI-Java.svg)](https://jitpack.io/#net.olympiccode/vHackOSAPI-Java)
 #
 #### Gradle configuration
 ```
