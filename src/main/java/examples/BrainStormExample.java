@@ -51,6 +51,7 @@ public class BrainStormExample implements EventListener {
           //  api.getAppManager().getApp(AppType.Spam).getAsUpdateable().fillTasks();
             int lvl = 10000000;
             App capp = null;
+            System.out.println(api.getStats().getUsername());
             System.out.println(api.getAppManager().getApps());
             for (App app : api.getAppManager().getApps()) {
                 if (!app.isInstalled() && app.getRequiredLevel() <= api.getStats().getLevel()) app.getAsInstallable().install();

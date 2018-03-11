@@ -111,7 +111,7 @@ public class vHackOSAPIImpl implements vHackOSAPI {
             stats.setLevel(Long.parseLong(object.optString("level", "0")));
             stats.setLevelPorcentage(Long.parseLong(object.optString("exppc", "0")));
             stats.setMoney(Long.parseLong(object.optString("money", "0")));
-            stats.setUsername(object.optString("statsname"));
+            stats.setUsername(object.optString("username"));
             stats.setNetcoins(Long.parseLong(object.optString("netcoins", "0")));
             stats.setRequiredExperience(Long.parseLong(object.optString("expreq", "0")));
         } catch (JSONException e) {
