@@ -18,7 +18,6 @@ dependencies {
     compile group: 'org.json', name: 'json', version: '20090211'
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
     compileOnly 'org.projectlombok:lombok:1.16.20'
-    compile 'net.olympiccode:vHackOSAPI-Java:dev-SNAPSHOT'
 }
 
 shadowJar.destinationDir = file("/build/libs")
