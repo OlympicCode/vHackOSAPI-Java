@@ -49,7 +49,7 @@ public class Requester {
     public Response getResponse(Route.CompiledRoute route) {
         if (lastRequest >= System.currentTimeMillis() - 1000) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
