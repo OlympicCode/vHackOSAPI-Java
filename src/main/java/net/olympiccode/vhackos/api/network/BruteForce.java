@@ -14,4 +14,5 @@ public interface BruteForce {
     long getEndTimestamp();
     long getId();
     BruteForceState getState();
+    boolean retry();
 }
