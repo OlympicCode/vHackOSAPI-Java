@@ -42,4 +42,13 @@ public class BruteForceImpl implements BruteForce {
         }
         return false;
     }
+
+    public boolean retry() {
+        JSONObject obj = Route.Tasks.REMOVE_BRUTE.compile(api, "10005", String.valueOf(id)).getResponse().getJSON();
+        if (obj.optInt("bruteretry", 0) == 1) {
+            api.getTaskManager().reloadTasks();
+            return true;
+        }
+        return false;
+    }
 }
