@@ -5,6 +5,7 @@ import net.olympiccode.vhackos.api.entities.Stats;
 import net.olympiccode.vhackos.api.events.Event;
 import net.olympiccode.vhackos.api.events.EventListener;
 import net.olympiccode.vhackos.api.events.StatsUpdateEvent;
+import net.olympiccode.vhackos.api.misc.Leaderboards;
 import net.olympiccode.vhackos.api.requests.Requester;
 import net.olympiccode.vhackos.api.requests.Response;
 import net.olympiccode.vhackos.api.requests.Route;
@@ -44,6 +45,7 @@ public class vHackOSAPIImpl implements vHackOSAPI {
     private TaskManagerImpl taskManager = new TaskManagerImpl(this);
     private NetworkManagerImpl networkManager = new NetworkManagerImpl(this);
     private MinerImpl miner = new MinerImpl(this);
+    private Leaderboards leaderboards = new LeaderboardsImpl(this);
     private ScheduledExecutorService executorService =  Executors.newScheduledThreadPool(corePoolSize, new APIThreadFactory());
 
     public vHackOSAPIImpl(OkHttpClient.Builder httpClientBuilder, boolean autoReconnect, int maxReconnectDelay, int corePoolSize) {
@@ -132,9 +134,7 @@ public class vHackOSAPIImpl implements vHackOSAPI {
         this.status = status;
     }
 
-    public void addEventListener(Object... listener) {
-        for (Object o : listener) if (o instanceof EventListener) listeners.add((EventListener) o);
-    }
+    public void addEventListener(Object... listener) { for (Object o : listener) if (o instanceof EventListener) listeners.add((EventListener) o); }
 
     public Status getStatus() {
         return status;
@@ -160,9 +160,7 @@ public class vHackOSAPIImpl implements vHackOSAPI {
         this.password = password;
     }
 
-    public void removeEventListener(Object... listener) {
-        for (Object o : listener) if (o instanceof EventListener) listeners.remove(o);
-    }
+    public void removeEventListener(Object... listener) { for (Object o : listener) if (o instanceof EventListener) listeners.remove(o); }
 
     public void setDebugResponses(boolean debugResponses) {
         this.debugResponses = debugResponses;
@@ -201,6 +199,9 @@ public class vHackOSAPIImpl implements vHackOSAPI {
     }
 
     public MinerImpl getMiner() { return miner; }
+
+    public Leaderboards getLeaderboards() { return leaderboards; }
+
     class APIThreadFactory implements ThreadFactory {
         private int counter = 0;
         private String prefix = "vHackOSAPI";

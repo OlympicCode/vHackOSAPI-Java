@@ -49,7 +49,7 @@ public class Requester {
     public Response getResponse(Route.CompiledRoute route) {
         if (lastRequest >= System.currentTimeMillis() - 1000) {
             try {
-                Thread.sleep(200);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -101,6 +101,7 @@ public class Requester {
             }
         } catch (RuntimeException | LoginException e) {
             e.printStackTrace();
+            System.exit(0);
         } catch (final Exception e) {
             throw new IllegalStateException("An error occurred while processing rest request", e);
         } finally {
