@@ -58,7 +58,7 @@ public class LeaderboardsImpl implements Leaderboards {
                 JSONObject entry = dataa.optJSONObject(i);
                 String user = entry.optString("user");
                 int level = entry.optInt("level");
-                long expPorcentage = Long.parseLong(entry.optString("exp").replace("%", ""));
+                double expPorcentage = Long.parseLong(entry.optString("exp").replace("%", ""));
                 datal.add(new LeaderboardEntryImpl(user, level, expPorcentage));
             }
             data = datal;
@@ -79,9 +79,9 @@ public class LeaderboardsImpl implements Leaderboards {
 
         private String username;
         private int level;
-        private long expPorcentage;
+        private double expPorcentage;
 
-        public LeaderboardEntryImpl(String username, int level, long expPorcentage) {
+        public LeaderboardEntryImpl(String username, int level, double expPorcentage) {
            this.username = username;
            this.level = level;
            this.expPorcentage = expPorcentage;
@@ -95,7 +95,7 @@ public class LeaderboardsImpl implements Leaderboards {
         }
 
 
-        public long getExpPorcentage() {
+        public double getExpPorcentage() {
             return expPorcentage;
         }
     }

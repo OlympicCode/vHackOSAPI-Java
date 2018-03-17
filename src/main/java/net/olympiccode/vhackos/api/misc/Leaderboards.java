@@ -12,7 +12,7 @@ public interface Leaderboards {
     interface LeaderboardEntry {
        String getUsername();
        int getLevel();
-       long getExpPorcentage();
+       double getExpPorcentage();
     }
 
     interface TournamentEntry {
