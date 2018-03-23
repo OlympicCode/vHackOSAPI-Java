@@ -13,7 +13,7 @@
         maven { url "https://jitpack.io" }
    }
    dependencies {
-        compile 'net.olympiccode:vHackOSAPI-Java:v1.1-beta'
+        compile 'net.olympiccode:vHackOSAPI-Java:dev-SNAPSHOT'
    }
 ```
 ##### Current API progress:
