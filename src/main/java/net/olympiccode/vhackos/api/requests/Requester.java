@@ -17,11 +17,11 @@ import java.util.zip.GZIPInputStream;
 public class Requester {
     private static final Logger LOG = LoggerFactory.getLogger("Requester");
     private final vHackOSAPIImpl api;
-    private long lastRequest = 0;
     private final OkHttpClient httpClient;
-
+    private long lastRequest = 0;
     private volatile boolean retryOnTimeout = false;
-
+    private int triesLeft = 3;
+    private int success = 0;
 
     public Requester(vHackOSAPI api) {
 
@@ -43,9 +43,7 @@ public class Requester {
     public OkHttpClient getHttpClient() {
         return this.httpClient;
     }
-
-    private int triesLeft = 3;
-    private int success = 0;
+    boolean first = true;
     public Response getResponse(Route.CompiledRoute route) {
         if (lastRequest >= System.currentTimeMillis() - 1000) {
             try {
@@ -54,6 +52,7 @@ public class Requester {
                 e.printStackTrace();
             }
         }
+
 
         lastRequest = System.currentTimeMillis();
         Request request = new Request.Builder()
@@ -84,16 +83,12 @@ public class Requester {
                     }
                     break;
                 case "36":
-                    if (triesLeft <= 0) {
-                        LOG.error("Failed to relogin after 3 tries, you are probably running the game while the bot is also running.");
-                        throw new LoginException("Failed to re-login after 3 tries");
+                    if (first) {
+                        first = false;
+                        throw new Exception("Invalid token");
+                    } else {
+                        throw new LoginException("Invalid token");
                     }
-                    LOG.error("Server returned invalid access token error, trying to reconnect...");
-                    api.setStatus(vHackOSAPI.Status.AWAITING_LOGIN_CONFIRMATION);
-                    api.verifyDetails();
-                    success = 0;
-                    triesLeft--;
-                    return getResponse(route);
                 case "10":
                     throw new RuntimeException("The server returned error 10, this might mean the bot is outdated or a bug ocurred.");
                 case "1":

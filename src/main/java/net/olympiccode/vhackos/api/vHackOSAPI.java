@@ -14,12 +14,13 @@ public interface vHackOSAPI {
 
     enum Status
     {
-        INITIALIZING(true),
+        INITIALIZING,
         INITIALIZED(true),
-        LOGGING_IN(true),
-        AWAITING_LOGIN_CONFIRMATION(true),
-        LOADING_SUBSYSTEMS(true),
-        CONNECTED(true),
+        LOGGING_IN,
+        AWAITING_LOGIN_CONFIRMATION,
+        AWAITING_PRELOGIN_CHECK,
+        LOADING_SUBSYSTEMS,
+        CONNECTED,
         SHUTDOWN,
         FAILED_TO_LOGIN;
 

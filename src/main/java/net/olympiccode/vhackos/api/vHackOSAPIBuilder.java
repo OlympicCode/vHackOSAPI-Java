@@ -16,6 +16,9 @@ public class vHackOSAPIBuilder {
     private OkHttpClient.Builder httpClientBuilder = null;
     private String username;
     private String password;
+    private String token;
+    private String uid;
+    private boolean preLogin = false;
 
     public vHackOSAPIBuilder()
     {
@@ -33,6 +36,13 @@ public class vHackOSAPIBuilder {
     public vHackOSAPIBuilder setPassword(String password)
     {
         this.password = password;
+        return this;
+    }
+
+    public vHackOSAPIBuilder setPreLogin(String token, String uid) {
+        this.token = token;
+        this.uid = uid;
+        this.preLogin = true;
         return this;
     }
 
@@ -62,22 +72,25 @@ public class vHackOSAPIBuilder {
         OkHttpClient.Builder httpClientBuilder = this.httpClientBuilder == null ? new OkHttpClient.Builder() : this.httpClientBuilder;
         boolean autoReconnect = true;
         int maxReconnectDelay = 900;
-        vHackOSAPIImpl api = new vHackOSAPIImpl(httpClientBuilder, autoReconnect, maxReconnectDelay, 5);
+        vHackOSAPIImpl api = new vHackOSAPIImpl(httpClientBuilder, autoReconnect, maxReconnectDelay, 5, preLogin);
 
         listeners.forEach(api::addEventListener);
-        api.setStatus(vHackOSAPI.Status.INITIALIZED);
-        api.login(username, password);
+        api.setStatus(vHackOSAPI.Status.INITIALIZING);
+        if (!preLogin) {
+            api.login(username, password);
+        } else {
+            api.login(username, password, token, uid);
+        }
         return api;
     }
 
 
     public vHackOSAPI buildBlocking() throws LoginException, IllegalArgumentException, InterruptedException
     {
-        Checks.notNull(vHackOSAPI.Status.CONNECTED, "Status");
-        Checks.check(vHackOSAPI.Status.CONNECTED.isInit(), "Cannot await the status %s as it is not part of the login cycle!", vHackOSAPI.Status.CONNECTED);
+        Checks.notNull(vHackOSAPI.Status.INITIALIZED, "Status");
+        Checks.check(vHackOSAPI.Status.INITIALIZED.isInit(), "Cannot await the status %s as it is not part of the login cycle!", vHackOSAPI.Status.CONNECTED);
         vHackOSAPI api = buildAsync();
-        while (!api.getStatus().isInit()
-                || api.getStatus().ordinal() < vHackOSAPI.Status.CONNECTED.ordinal())
+        while (!api.getStatus().isInit())
         {
             if (api.getStatus() == vHackOSAPI.Status.SHUTDOWN)
                 throw new IllegalStateException("vHackOSAPI was unable to finish starting up!");

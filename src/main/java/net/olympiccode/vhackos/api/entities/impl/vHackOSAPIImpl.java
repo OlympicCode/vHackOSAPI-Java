@@ -39,6 +39,7 @@ public class vHackOSAPIImpl implements vHackOSAPI {
     private String uid = "";
     private boolean invalidToken = false;
     private boolean debugResponses = false;
+    private boolean preLogin;
 
     private StatsImpl stats = new StatsImpl(this);
     private AppManagerImpl appManager = new AppManagerImpl(this);
@@ -46,28 +47,57 @@ public class vHackOSAPIImpl implements vHackOSAPI {
     private NetworkManagerImpl networkManager = new NetworkManagerImpl(this);
     private MinerImpl miner = new MinerImpl(this);
     private Leaderboards leaderboards = new LeaderboardsImpl(this);
-    private ScheduledExecutorService executorService =  Executors.newScheduledThreadPool(corePoolSize, new APIThreadFactory());
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(corePoolSize, new APIThreadFactory());
 
-    public vHackOSAPIImpl(OkHttpClient.Builder httpClientBuilder, boolean autoReconnect, int maxReconnectDelay, int corePoolSize) {
+    public vHackOSAPIImpl(OkHttpClient.Builder httpClientBuilder, boolean autoReconnect, int maxReconnectDelay, int corePoolSize, boolean preLogin) {
         this.httpClientBuilder = httpClientBuilder;
         boolean autoReconnect1 = autoReconnect;
+        this.preLogin = preLogin;
         int maxReconnectDelay1 = maxReconnectDelay;
         this.requester = new Requester(this);
         this.corePoolSize = corePoolSize;
     }
 
-    public void login(String username, String password) throws LoginException {
+    public void login(String username, String password, String... preLoginData) throws LoginException {
         setStatus(Status.LOGGING_IN);
         if (username == null || username.isEmpty())
             throw new LoginException("Provided username was null or empty!");
         if (password == null || password.isEmpty())
             throw new LoginException("Provided password was null or empty!");
+        if (preLogin) {
+            if (preLoginData[0] == null || preLoginData[0].isEmpty())
+                throw new LoginException("Provided token was null or empty!");
+            if (preLoginData[1] == null || preLoginData[1].isEmpty())
+                throw new LoginException("Provided uid was null or empty!");
+        }
         setUsername(username);
         setPassword(password);
-        setStatus(Status.AWAITING_LOGIN_CONFIRMATION);
-        verifyDetails();
-        setup();
-        setStatus(Status.CONNECTED);
+        this.accessToken = preLoginData[0];
+        this.uid = preLoginData[1];
+        if (!preLogin) {
+            setStatus(Status.AWAITING_LOGIN_CONFIRMATION);
+            verifyDetails();
+        } else {
+            setStatus(Status.AWAITING_PRELOGIN_CHECK);
+            verifyPreLogin();
+        }
+    }
+
+    public void verifyPreLogin() throws LoginException {
+        Route.CompiledRoute r = Route.Misc.UPDATE.compile(this);
+        try {
+            Response resp = getRequester().getResponse(r);
+            if (!resp.getJSON().optString("username").isEmpty()) {
+                setStatus(Status.CONNECTED);
+                setup();
+            } else {
+                setStatus(Status.AWAITING_LOGIN_CONFIRMATION);
+                verifyDetails();
+            }
+        } catch (Exception e) {
+            setStatus(Status.AWAITING_LOGIN_CONFIRMATION);
+            verifyDetails();
+        }
     }
 
     public void verifyDetails() throws LoginException {
@@ -77,6 +107,8 @@ public class vHackOSAPIImpl implements vHackOSAPI {
             JSONObject userResponse = resp.getJSON();
             this.accessToken = userResponse.getString("accesstoken");
             this.uid = userResponse.getString("uid");
+            setStatus(Status.CONNECTED);
+            setup();
             LOG.info("Login Successful!");
         } catch (RuntimeException e) {
             Throwable ex = e.getCause() != null ? e.getCause().getCause() : null;
@@ -99,6 +131,7 @@ public class vHackOSAPIImpl implements vHackOSAPI {
         executorService.scheduleAtFixedRate(() -> taskManager.checkTasks(), 1000, 1000, TimeUnit.MILLISECONDS);
         executorService.scheduleAtFixedRate(() -> taskManager.reloadTasks(), 30000, 30000, TimeUnit.MILLISECONDS);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> executorService.shutdownNow()));
+        setStatus(Status.INITIALIZED);
     }
 
     private void updateData() {
@@ -130,26 +163,28 @@ public class vHackOSAPIImpl implements vHackOSAPI {
         return httpClientBuilder;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void addEventListener(Object... listener) {
+        for (Object o : listener) if (o instanceof EventListener) listeners.add((EventListener) o);
     }
-
-    public void addEventListener(Object... listener) { for (Object o : listener) if (o instanceof EventListener) listeners.add((EventListener) o); }
 
     public Status getStatus() {
         return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public Requester getRequester() {
-        return requester;
-    }
-
     private void setUsername(String username) {
         this.username = username;
+    }
+
+    public Requester getRequester() {
+        return requester;
     }
 
     public String getPassword() {
@@ -160,14 +195,16 @@ public class vHackOSAPIImpl implements vHackOSAPI {
         this.password = password;
     }
 
-    public void removeEventListener(Object... listener) { for (Object o : listener) if (o instanceof EventListener) listeners.remove(o); }
-
-    public void setDebugResponses(boolean debugResponses) {
-        this.debugResponses = debugResponses;
+    public void removeEventListener(Object... listener) {
+        for (Object o : listener) if (o instanceof EventListener) listeners.remove(o);
     }
 
     public boolean isDebugResponses() {
         return debugResponses;
+    }
+
+    public void setDebugResponses(boolean debugResponses) {
+        this.debugResponses = debugResponses;
     }
 
     public List<EventListener> getRegisteredListeners() {
@@ -198,9 +235,13 @@ public class vHackOSAPIImpl implements vHackOSAPI {
         return networkManager;
     }
 
-    public MinerImpl getMiner() { return miner; }
+    public MinerImpl getMiner() {
+        return miner;
+    }
 
-    public Leaderboards getLeaderboards() { return leaderboards; }
+    public Leaderboards getLeaderboards() {
+        return leaderboards;
+    }
 
     class APIThreadFactory implements ThreadFactory {
         private int counter = 0;
