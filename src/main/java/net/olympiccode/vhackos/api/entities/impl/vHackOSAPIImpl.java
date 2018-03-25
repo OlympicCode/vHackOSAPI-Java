@@ -69,11 +69,11 @@ public class vHackOSAPIImpl implements vHackOSAPI {
                 throw new LoginException("Provided token was null or empty!");
             if (preLoginData[1] == null || preLoginData[1].isEmpty())
                 throw new LoginException("Provided uid was null or empty!");
+            this.accessToken = preLoginData[0];
+            this.uid = preLoginData[1];
         }
         setUsername(username);
         setPassword(password);
-        this.accessToken = preLoginData[0];
-        this.uid = preLoginData[1];
         if (!preLogin) {
             setStatus(Status.AWAITING_LOGIN_CONFIRMATION);
             verifyDetails();
