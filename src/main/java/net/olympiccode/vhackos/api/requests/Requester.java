@@ -49,7 +49,7 @@ public class Requester {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+               // e.printStackTrace();
             }
         }
 
@@ -77,7 +77,7 @@ public class Requester {
 
             switch (object.getString("result")) {
                 case "2":
-                    if (!route.getCompiledRoute().contains("remotelog")) {
+                    if (!route.getCompiledRoute().contains("remotelog") && !route.getCompiledRoute().contains("bruteforce")) {
                         api.setStatus(vHackOSAPI.Status.FAILED_TO_LOGIN);
                         throw new LoginException("Invalid username or password");
                     }
