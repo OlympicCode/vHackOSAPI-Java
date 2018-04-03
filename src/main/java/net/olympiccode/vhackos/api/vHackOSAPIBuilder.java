@@ -19,6 +19,7 @@ public class vHackOSAPIBuilder {
     private String token;
     private String uid;
     private boolean preLogin = false;
+    private int[] sleepTime = {1000, 1500};
 
     public vHackOSAPIBuilder()
     {
@@ -32,6 +33,17 @@ public class vHackOSAPIBuilder {
         return this;
     }
 
+    public vHackOSAPIBuilder setSleepTime(int sleepTime) {
+        this.sleepTime[0] = sleepTime;
+        this.sleepTime[1] = -1;
+        return this;
+    }
+
+    public vHackOSAPIBuilder setSleepTime(int min, int max) {
+        this.sleepTime[0] = min;
+        this.sleepTime[1] = max;
+        return this;
+    }
 
     public vHackOSAPIBuilder setPassword(String password)
     {
@@ -72,7 +84,7 @@ public class vHackOSAPIBuilder {
         OkHttpClient.Builder httpClientBuilder = this.httpClientBuilder == null ? new OkHttpClient.Builder() : this.httpClientBuilder;
         boolean autoReconnect = true;
         int maxReconnectDelay = 900;
-        vHackOSAPIImpl api = new vHackOSAPIImpl(httpClientBuilder, autoReconnect, maxReconnectDelay, 5, preLogin);
+        vHackOSAPIImpl api = new vHackOSAPIImpl(httpClientBuilder, autoReconnect, maxReconnectDelay, 5, preLogin, sleepTime);
 
         listeners.forEach(api::addEventListener);
         api.setStatus(vHackOSAPI.Status.INITIALIZING);

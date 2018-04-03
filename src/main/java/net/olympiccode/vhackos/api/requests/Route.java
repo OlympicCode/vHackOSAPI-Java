@@ -128,6 +128,12 @@ public class Route {
         public static final Route EDIT_LOG = new Route("remotelog", "target", "action", "log");
     }
 
+    public static class Server {
+        public static final Route SERVER = new Route("server");
+        public static final Route NODE_ADD = new Route("server", "node_number", "node_type", "action");
+        public static final Route ACTION = new Route("server",  "action");
+    }
+
     public class CompiledRoute {
         private final Route baseRoute;
         private final String compiledRoute;

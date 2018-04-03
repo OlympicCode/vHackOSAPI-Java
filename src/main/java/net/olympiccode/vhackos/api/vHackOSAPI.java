@@ -7,6 +7,7 @@ import net.olympiccode.vhackos.api.events.EventListener;
 import net.olympiccode.vhackos.api.misc.Leaderboards;
 import net.olympiccode.vhackos.api.misc.Miner;
 import net.olympiccode.vhackos.api.network.NetworkManager;
+import net.olympiccode.vhackos.api.server.Server;
 
 import java.util.List;
 
@@ -62,6 +63,8 @@ public interface vHackOSAPI {
     Miner getMiner();
 
     Leaderboards getLeaderboards();
+
+    Server getServer();
 
 }
 

@@ -12,6 +12,7 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.Random;
 import java.util.zip.GZIPInputStream;
 
 public class Requester {
@@ -23,6 +24,28 @@ public class Requester {
     private int triesLeft = 3;
     private int success = 0;
 
+    int sleepTime = -1;
+    int sleepTime2 = -1;
+    boolean sleepFixed = false;
+    private int getSleepTime() {
+        if (sleepTime != -1) {
+            if (sleepFixed) {
+                return sleepTime;
+            } else {
+               return sleepTime + new Random().nextInt(sleepTime2 - sleepTime);
+            }
+        }
+        if (api.getSleepTime()[1] == -1) {
+            sleepTime = api.getSleepTime()[0];
+            sleepFixed = true;
+            return getSleepTime();
+        } else {
+            sleepTime = api.getSleepTime()[0];
+            sleepTime2 = api.getSleepTime()[1];
+            sleepFixed = false;
+            return getSleepTime();
+        }
+    }
     public Requester(vHackOSAPI api) {
 
         this.api = (vHackOSAPIImpl) api;
@@ -47,7 +70,7 @@ public class Requester {
     public Response getResponse(Route.CompiledRoute route) {
         if (lastRequest >= System.currentTimeMillis() - 1000) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(getSleepTime());
             } catch (InterruptedException e) {
                // e.printStackTrace();
             }
@@ -74,7 +97,7 @@ public class Requester {
         }
         try {
             JSONObject object = response[0].getJSON();
-
+            if (object.get("result") == null) return getResponse(route);
             switch (object.getString("result")) {
                 case "2":
                     if (!route.getCompiledRoute().contains("remotelog") && !route.getCompiledRoute().contains("bruteforce")) {
