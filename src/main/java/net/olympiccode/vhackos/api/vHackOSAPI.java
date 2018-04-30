@@ -6,6 +6,7 @@ import net.olympiccode.vhackos.api.entities.Stats;
 import net.olympiccode.vhackos.api.events.EventListener;
 import net.olympiccode.vhackos.api.misc.Leaderboards;
 import net.olympiccode.vhackos.api.misc.Miner;
+import net.olympiccode.vhackos.api.missions.MissionManager;
 import net.olympiccode.vhackos.api.network.NetworkManager;
 import net.olympiccode.vhackos.api.server.Server;
 
@@ -66,5 +67,6 @@ public interface vHackOSAPI {
 
     Server getServer();
 
+    MissionManager getMissionManager();
 }
 

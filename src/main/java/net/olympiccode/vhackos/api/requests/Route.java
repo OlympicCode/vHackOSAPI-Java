@@ -134,6 +134,12 @@ public class Route {
         public static final Route ACTION = new Route("server",  "action");
     }
 
+    public static class Missions {
+        public static final Route MISSIONS = new Route("missions");
+        public static final Route DAILY_RECEIVE = new Route("missions", "action", "dailyid");
+        public static final Route REWARD_CLAIM = new Route("missions", "action");
+    }
+
     public class CompiledRoute {
         private final Route baseRoute;
         private final String compiledRoute;

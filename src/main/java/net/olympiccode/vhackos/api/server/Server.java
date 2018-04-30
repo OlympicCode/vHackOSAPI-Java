@@ -1,5 +1,7 @@
 package net.olympiccode.vhackos.api.server;
 
+import java.util.List;
+
 public interface Server {
 
     int getServerPieces();
@@ -7,33 +9,14 @@ public interface Server {
     int getFirewallPieces();
     int getAntivirusPieces();
 
-    int getServerStrength();
-
-    int[] getAntivirusStrength();
-
-    int[] getFirewallStrength();
-
-    int[] getAntivirusStrengthMax();
-
-    int[] getFirewallStrengthMax();
-
-    int[] getAntivirusStars();
-
-    int[] getFirewallStars();
-
-    int getServerStrengthMax();
-
-    int getServerStars();
-
     long getLastUpdate();
 
     OpenResult openAllPacks();
 
-    boolean upgrade(NODE_TYPE type, int node);
+    boolean upgrade(NodeType type, int node);
+    boolean upgradeFive(NodeType type, int node);
 
     int getPackages();
-
-    void update();
 
     interface OpenResult {
         int getFw();
@@ -45,18 +28,32 @@ public interface Server {
         int getBoost();
     }
 
-    enum NODE_TYPE {
+    ServerNode getNode(NodeType type, int id);
+
+    List<ServerNode> getNodes();
+
+    enum NodeType {
         SERVER(0), AV(1), FW(2);
 
         private final int id;
 
-        NODE_TYPE(int id) {
+        NodeType(int id) {
             this.id = id;
         }
 
         public int getId() {
             return id;
         }
+    }
+
+    interface ServerNode {
+        NodeType getType();
+        int getId();
+        int getStars();
+        int getStrength();
+        int getMaxStrength();
+        boolean upgrade();
+        boolean upgradeFive();
     }
     
 }

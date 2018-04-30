@@ -1,6 +1,7 @@
 package net.olympiccode.vhackos.api.entities.impl;
 
 import net.olympiccode.vhackos.api.appstore.AppManager;
+import net.olympiccode.vhackos.api.entities.AppType;
 import net.olympiccode.vhackos.api.entities.Stats;
 import net.olympiccode.vhackos.api.events.Event;
 import net.olympiccode.vhackos.api.events.EventListener;
@@ -50,6 +51,8 @@ public class vHackOSAPIImpl implements vHackOSAPI {
     private MinerImpl miner = new MinerImpl(this);
     private Leaderboards leaderboards = new LeaderboardsImpl(this);
     private ServerImpl server = new ServerImpl(this);
+    private MissionManagerImpl missionManager = new MissionManagerImpl(this);
+
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(corePoolSize, new APIThreadFactory());
 
     public vHackOSAPIImpl(OkHttpClient.Builder httpClientBuilder, boolean autoReconnect, int maxReconnectDelay, int corePoolSize, boolean preLogin, int[] sleepTime) {
@@ -131,11 +134,17 @@ public class vHackOSAPIImpl implements vHackOSAPI {
         LOG.info("Loading subsystems...");
         updateData();
         taskManager.reloadTasks();
+        server.update();
+        missionManager.update();
         executorService.scheduleAtFixedRate(() -> updateData(), 30000, 30000, TimeUnit.MILLISECONDS);
         executorService.scheduleAtFixedRate(() -> taskManager.checkTasks(), 1000, 1000, TimeUnit.MILLISECONDS);
         executorService.scheduleAtFixedRate(() -> taskManager.reloadTasks(), 30000, 30000, TimeUnit.MILLISECONDS);
-        executorService.scheduleAtFixedRate(() -> server.update(), 10000, 10000, TimeUnit.MILLISECONDS);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> executorService.shutdownNow()));
+        if (appManager.getApp(AppType.Server).isInstalled()) executorService.scheduleAtFixedRate(() -> server.update(), 10000, 10000, TimeUnit.MILLISECONDS);
+        if (appManager.getApp(AppType.Missions).isInstalled()) executorService.scheduleAtFixedRate(() -> missionManager.update(), 10000, 60000 * 10, TimeUnit.MILLISECONDS);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOG.info("Shutting down vHackAPI-Java...");
+            executorService.shutdownNow();
+        }));
         setStatus(Status.INITIALIZED);
     }
 
@@ -254,6 +263,10 @@ public class vHackOSAPIImpl implements vHackOSAPI {
 
     public Server getServer() {
         return server;
+    }
+
+    public MissionManagerImpl getMissionManager() {
+        return missionManager;
     }
 
     class APIThreadFactory implements ThreadFactory {
